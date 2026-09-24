@@ -4,6 +4,16 @@ All notable changes to tinyjs. Versions are git tags (`vX.Y.Z`); a tag push
 builds and publishes the release. The rendered version of this file lives at
 https://tinyjs.app/changelog.
 
+## Unreleased
+
+- **`tinyjs build` on macOS now says which Macs the `.app` will open on.**
+  The bundle needs both the launcher and `tjs` to carry the CPU's
+  architecture. The stock `tjs` only carries the build machine's, so an app
+  built on Apple Silicon is refused on Intel Macs ("not supported on this
+  type of Mac"), and the build gave no warning. The build now prints e.g.
+  `runs on: Apple Silicon (arm64)` and names the binary that is missing the
+  other slice. ([#2](https://github.com/tarwin/tinyjsapp/issues/2))
+
 ## 0.41.1 — 2026-09-23
 
 - **`tinyjs new --template` finishes again with create-vite 9.** create-vite
