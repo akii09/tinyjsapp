@@ -12,7 +12,7 @@
   // body pulls chunks from the backend on demand (backpressured), which is
   // what an endless source like internet radio needs (a buffered fetch of a
   // never-ending stream would never resolve).
-  let fetchSeq = 0;
+  const fetchSeq = new Uint32Array(1);
   const u8ToB64 = (u8) => {
     let s = '';
     for (let i = 0; i < u8.length; i += 0x8000)
@@ -43,7 +43,7 @@
     return { bodyText: String(body) };
   };
   const tinyFetch = async (url, init = {}) => {
-    const id = 'f' + (++fetchSeq);
+    const id = 'f' + (++fetchSeq[0]);
     const streaming = !!init.stream;
     const { bodyText, bodyB64 } = await normalizeBody(init.body);
     const head = await call('fetch', {
