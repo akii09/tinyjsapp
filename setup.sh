@@ -162,13 +162,15 @@ fi
 # and lipo'd, since swiftc takes a single -target (see below).
 ARCHS="$TJS_ARCH"
 [ "${TINYJS_UNIVERSAL:-0}" = "1" ] && ARCHS="arm64 x86_64"
+BUILD_TMP="$(mktemp -d)"
+trap 'rm -rf "$BUILD_TMP"' EXIT
 if [ "$AI_BUILD" = "1" ]; then
   echo "==> compiling with on-device AI (FoundationModels found in the SDK)"
 else
   echo "==> compiling without on-device AI (no FoundationModels in this SDK)"
 fi
 for ARCH in $ARCHS; do
-  OUT="/tmp/tinyjs-launcher-$ARCH"
+  OUT="$BUILD_TMP/launcher-$ARCH"
   if [ "$AI_BUILD" = "1" ]; then
     # The binary keeps the macOS 14 floor and weak-links FoundationModels, so it
     # still launches on macOS 14+ — AI just reports 'unsupported' there.
@@ -180,8 +182,8 @@ for ARCH in $ARCHS; do
     c++ -std=c++17 -c -x objective-c++ -DTINYJS_AI $MIN_OS -arch "$ARCH" -isystem native/include \
       native/launcher-macos.cc -o "$OUT.o"
     swiftc -parse-as-library -target "$SWIFT_TARGET" \
-      -c native/tiny_ai.swift -o "/tmp/tinyjs-ai-$ARCH.o"
-    swiftc "$OUT.o" "/tmp/tinyjs-ai-$ARCH.o" -o "$OUT" -lc++ \
+      -c native/tiny_ai.swift -o "$BUILD_TMP/ai-$ARCH.o"
+    swiftc "$OUT.o" "$BUILD_TMP/ai-$ARCH.o" -o "$OUT" -lc++ \
       -target "$SWIFT_TARGET" $FW \
       -Xlinker -weak_framework -Xlinker ScreenCaptureKit \
       -Xlinker -weak_framework -Xlinker FoundationModels -ldl
@@ -191,8 +193,7 @@ for ARCH in $ARCHS; do
   fi
 done
 # shellcheck disable=SC2046
-lipo -create $(for ARCH in $ARCHS; do echo "/tmp/tinyjs-launcher-$ARCH"; done) -output native/launcher-macos
-rm -f /tmp/tinyjs-launcher-* /tmp/tinyjs-ai-*
+lipo -create $(for ARCH in $ARCHS; do echo "$BUILD_TMP/launcher-$ARCH"; done) -output native/launcher-macos
 
 codesign --force --sign - native/launcher-macos 2>/dev/null || true
 

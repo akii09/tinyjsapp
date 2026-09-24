@@ -1262,6 +1262,9 @@ const UNIVERSAL = !IS_WIN && !IS_LINUX &&
   ['build', 'publish'].includes(cmd) &&
   (args.includes('--universal') || tjs.env.TINYJS_UNIVERSAL === '1');
 const MAC_ARCHS = ['arm64', 'x86_64'];
+if ((IS_WIN || IS_LINUX) && args.includes('--universal')) {
+  console.log('tinyjs: --universal only applies to macOS builds — ignoring it here');
+}
 
 // lipo is in the Command Line Tools, not base macOS — fine for this opt-in
 // path, but say what's missing rather than failing on an empty answer.
@@ -1297,6 +1300,7 @@ async function universalTjs() {
       await run(['mv', `${cache}/txiki-macos-${a}/tjs`, exe]);
       await run(['rm', '-rf', zip, `${cache}/txiki-macos-${a}`]);
     }
+    if (!(await macArchs(exe)).includes(a)) fail(`${exe} is not an ${a} binary — delete it and rebuild`);
     slices.push(exe);
   }
   const out = '.build/tjs-universal';
