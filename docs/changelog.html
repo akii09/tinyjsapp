@@ -168,6 +168,14 @@
   <section>
 
     <div class="rel">
+      <h2>0.41.1 <span class="date">2026-09-23</span></h2>
+      <ul>
+        <li><b><code>tinyjs new --template</code> finishes again with create-vite 9.</b> create-vite now asks “Install with npm and start now?” after scaffolding. npm's <code>--yes</code> doesn't answer it, since that flag only covers npm's own prompts. Saying yes started a Vite dev server that never exits, so tinyjs never got to add its own files: the project had no <code>tinyjs.json</code>, <code>backend/</code>, types, icon or agent skill. tinyjs now passes <code>--no-interactive --no-immediate</code>, and create-vite scaffolds and exits without asking. Thanks to <a href="https://github.com/favasconcelos">@favasconcelos</a> for the report, which arrived with the root cause and the verified fix (<a href="https://github.com/tarwin/tinyjsapp/issues/5">#5</a>).</li>
+        <li><b>Fetch ids wrap instead of saturating.</b> The client's per-fetch counter is now a <code>Uint32Array</code>, so it wraps after 2³² fetches. A plain number stops increasing at <code>Number.MAX_SAFE_INTEGER</code>, after which every fetch would get the same id. No app will reach either limit, but the wrap is the safer behavior. Thanks to <a href="https://github.com/WebReflection">@WebReflection</a> (<a href="https://github.com/tarwin/tinyjsapp/pull/4">#4</a>), the first outside contribution to tinyjs.</li>
+      </ul>
+    </div>
+
+    <div class="rel">
       <h2>0.41.0 <span class="date">2026-09-22</span></h2>
       <ul>
         <li><b>Your own items in the Edit menu.</b> <code>{ role: 'edit', items: [...] }</code> now appends those items to the standard macOS Edit menu, below Select All and after a separator, where Find… and friends belong. Before this the role ignored its items, and declaring a separate <code>{ title: 'Edit' }</code> gave the bar two Edit menus. The items behave like any other: ids, key equivalents, ticks, <code>menu.update</code> / <code>menu.get</code>, clicks through <code>tiny.menu.on</code>. Windows and Linux add nothing implicitly, so there the items become an <b>Edit</b> menu in the declared slot. A bare <code>{ role: 'edit' }</code> still draws nothing on those platforms. Only the first <code>edit</code> block counts, as with <code>app</code>.</li>

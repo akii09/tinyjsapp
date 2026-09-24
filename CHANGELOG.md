@@ -4,6 +4,26 @@ All notable changes to tinyjs. Versions are git tags (`vX.Y.Z`); a tag push
 builds and publishes the release. The rendered version of this file lives at
 https://tinyjs.app/changelog.
 
+## 0.41.1 — 2026-09-23
+
+- **`tinyjs new --template` finishes again with create-vite 9.** create-vite
+  now asks "Install with npm and start now?" after scaffolding. npm's `--yes`
+  doesn't answer it, since that flag only covers npm's own prompts. Saying yes
+  started a Vite dev server that never exits, so tinyjs never got to add its
+  own files: the project had no `tinyjs.json`, `backend/`, types, icon or
+  agent skill. tinyjs now passes `--no-interactive --no-immediate`, and
+  create-vite scaffolds and exits without asking. Thanks to
+  [@favasconcelos](https://github.com/favasconcelos) for the report, which
+  arrived with the root cause and the verified fix
+  ([#5](https://github.com/tarwin/tinyjsapp/issues/5)).
+- **Fetch ids wrap instead of saturating.** The client's per-fetch counter is
+  now a `Uint32Array`, so it wraps after 2³² fetches. A plain number stops
+  increasing at `Number.MAX_SAFE_INTEGER`, after which every fetch would get
+  the same id. No app will reach either limit, but the wrap is the safer
+  behavior. Thanks to [@WebReflection](https://github.com/WebReflection)
+  ([#4](https://github.com/tarwin/tinyjsapp/pull/4)), the first outside
+  contribution to tinyjs.
+
 ## 0.41.0 — 2026-09-22
 
 - **Your own items in the Edit menu.** `{ role: 'edit', items: [...] }` now

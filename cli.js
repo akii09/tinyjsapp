@@ -576,7 +576,10 @@ tjs.exit(0);
 // Vite's own templates stay current upstream — we never fork them.
 async function scaffoldViteTemplate(dir, name, template) {
   console.log('==> npm create vite (' + template + ')');
-  await run(nodeToolArgv(['npm', 'create', 'vite@latest', dir, '--yes', '--', '--template', template]));
+  // npm's --yes only answers npm's own prompts; create-vite 9's "Install and
+  // start now?" would run `npm run dev` and block here forever (issue #5).
+  await run(nodeToolArgv(['npm', 'create', 'vite@latest', dir, '--yes', '--',
+    '--template', template, '--no-interactive', '--no-immediate']));
   const ts = template.endsWith('-ts');
   const backendEntry = 'backend/main.' + (ts ? 'ts' : 'js');
 
